@@ -1,0 +1,30 @@
+{
+  "name": "bes-ajax",
+  "version": "1.0.0",
+  "description": "Ajax handler using fetch API",
+  "main": "./src/ajax.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timtnleeProject/bes-ajax.git"
+  },
+  "keywords": [
+    "ajax"
+  ],
+  "author": "timtnlee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timtnleeProject/bes-ajax/issues"
+  },
+  "homepage": "https://github.com/timtnleeProject/bes-ajax#readme",
+  "dependencies": {
+    "whatwg-fetch": "^2.0.4"
+  },
+  "devDependencies": {
+    "webpack": "^4.8.3",
+    "webpack-cli": "^2.1.3"
+  }
+}
