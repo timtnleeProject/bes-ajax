@@ -1,7 +1,7 @@
 require('whatwg-fetch');
 
-function BesAjaxRequest() {
-    const np = new Object()
+function BesAjaxRequest(glob_arg) {
+    const np = new Object();
 
     function log(title, mes) {
         if (np.log)
@@ -127,9 +127,10 @@ function BesAjaxRequest() {
             this.waitingPool.sort(function(a, b) {
                 return a.primary - b.primary;
             })
-            let task = this.waitingPool.shift()
-            log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
-            if (this.exePool.length < np.poolSize) {
+            
+            while (this.exePool.length < np.poolSize) {
+                let task = this.waitingPool.shift()
+                log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
                 this.exePool.push(task)
                 this.emit('update')
                 this.emit('pool')
@@ -173,6 +174,7 @@ function BesAjaxRequest() {
     }
     BesRequest.prototype = Object.create(EventListener.prototype);
     BesRequest.prototype.constructor = BesRequest;
+    //clone 會copy原先的options,產生新的BesRequest物件
     BesRequest.prototype.clone = function() {
         let originFetchOpt = {};
         let originOpt = {};
@@ -187,6 +189,7 @@ function BesAjaxRequest() {
         clone.onerror = this.onerror;
         return clone;
     }
+    //extend : 先clone, 加上新的options或修改舊的options
     BesRequest.prototype.extend = function(newfetchopt, newopt) {
         let clone = this.clone();
         if (newfetchopt) {
@@ -334,9 +337,11 @@ function BesAjaxRequest() {
             this.response = response;
         }
     }
-    np.log = false;
-    np.poolSize = 5;
-    np.resolveFirst = false;
+    if(!glob_arg)
+        glob_arg = {}
+    np.log = glob_arg.log||false;
+    np.poolSize = glob_arg.poolSize||5;
+    np.resolveFirst = glob_arg.resolveFirst||false;
     np.taskPool = new TaskPool();
     np.errorHandler = function(e) {};
     np.successHandler = function(res) {};
