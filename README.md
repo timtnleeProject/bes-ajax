@@ -9,49 +9,63 @@
 
 ### Create request ###
 	var besAjax = BesAjaxRequest();
-	var defaultRequest = besAjax.createRequest({
-		host: 'http://127.0.0.1:3000',
-        path: 'api',
-	},{
-		responseType: 'text',
-        retry: 7,
-       	sleep: 1000,
-		primary: 3,
-		timeout: 5000,
-		name: 'defaultReq',
-	});
+	var defaultRequest = besAjax.createRequest (
+        {
+            host: 'http://127.0.0.1:3000',
+            path: 'api',
+	    }, 
+        {
+            responseType: 'text',
+            retry: 7, 
+            sleep: 1000,
+            primary: 3,
+            timeout: 5000,
+            name: 'defaultReq',
+	    });
 	defaultRequest.send().then((res)=>{
-		//handle response
+	    //handle response
 	}).catch((e)=>{
-		//handle error
+	    //handle error
 	})
 
 ### Extend requests ###
-	var postRequest = defaultRequest.extend({
+	var postRequest = defaultRequest.extend(
+        {
         	method: 'post',
         	headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
         	body: JSON.stringify({ name: 'p0855' }),
-    	}, {
-			retry:0,
-        	responseType: 'json',
-			primary: 0, 
-	        name: 'postReq',
-    	});
+        }, 
+        {
+		retry:0,
+		responseType: 'json',
+		primary: 0, 
+		name: 'postReq',
+        });
 	postRequest.send();
 
-append body dynamically
+**append body dynamically**
 
 	postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
 	postRequest.send();
 
-### Demo ###
-* Clone the repo.
-* run
-	
-    	$npm install
-    	$npm start 
+### Installation ###
+**webpack**
 
-* Visit  `localhost:3000/fetch.html`
+`$npm install add bes-ajax --save`
+
+`import besAjax from 'bes-ajax';`
+
+**Build script**
+
+* Clone the repo.
+
+* run
+       
+`$npm install`
+       
+`$npm build`
+
+* inclued dist script in html.
 
 ### Concept ###
 
@@ -89,10 +103,12 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
   
 
 # Document
+
 ### BesAjaxRequest()
 - create a new BesAjaxObject.
 - **type** `<Function>`
 - **return** [`BesAjaxObject`](#BesAjaxObject)  
+
 ### BesAjaxObject
 - This object can create request object, handle execute pool and waiting pool.
 - **type** `<Object>`
@@ -126,6 +142,7 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 ### BesAjaxObject.successHandler(`responseObject`)
 - Global response success handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
+
 ### BesAjaxObject.errorHandler(`e`)
 - Global error handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
@@ -154,9 +171,11 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 ### BesRequestObject.onsuccess
 - execute when task success, will extend ancestor requests' onsuccess function.
 - **type** `<Function>` 
+
 ### BesRequestObject.onerror
 - execute when task error, will extend ancestor requests' onerror function.
 - **type** `<Function>` 
+
 ### fetchoptions
 - **type** `<Object>`
 - Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
@@ -176,6 +195,7 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 	- query 
 		- request's query string. _ex: 'user=xxx;id=123'_
 		- **type** `<String>`   
+
 ### options
 - BesRequestObject options
 - **type** `<Object>`
