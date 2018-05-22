@@ -8,50 +8,53 @@
 
 
 ### Create request ###
-	var besAjax = BesAjaxRequest();
-	var defaultRequest = besAjax.createRequest (
-        {
-            host: 'http://127.0.0.1:3000',
-            path: 'api',
-	    }, 
-        {
-            responseType: 'text',
-            retry: 7, 
-            sleep: 1000,
-            primary: 3,
-            timeout: 5000,
-            name: 'defaultReq',
-	    });
-	defaultRequest.send().then((res)=>{
-	    //handle response
+    const besAjax = BesAjaxRequest();
+    const defaultRequest = besAjax.createRequest ({
+        host: 'http://127.0.0.1:3000',
+        path: 'api',
+	}, {
+        responseType: 'text',retry: 7, sleep: 1000,
+        primary: 3,
+        timeout: 5000,
+        name: 'defaultReq'
+    })
+	 
+    defaultRequest.send().then((res)=>{
+	 //handle response
 	}).catch((e)=>{
-	    //handle error
+	  //handle error
 	})
 
 ### Extend requests ###
-	var postRequest = defaultRequest.extend(
-        {
-        	method: 'post',
-        	headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
-        	body: JSON.stringify({ name: 'p0855' }),
-        }, 
-        {
-		retry:0,
-		responseType: 'json',
-		primary: 0, 
-		name: 'postReq',
-        });
-	postRequest.send();
+    const postRequest = defaultRequest.extend({
+        method: 'post',
+        headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
+        body: JSON.stringify({ name: 'p0855' }),
+    }, {
+	    retry:0,
+	    responseType: 'json',
+	    primary: 0, 
+	    name: 'postReq',
+    });
+    
+    postRequest.onsuccess = function () {
+       console.log('post request success!')
+    }
+    postRequest.send();
 
 **append body dynamically**
 
-	postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
-	postRequest.send();
+    postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
+    postRequest.send();
+
+### Demo ###
+[demo page](https://bes-ajax-demo.herokuapp.com/fetch.html)
+
 
 ### Installation ###
 **webpack**
 
-`$npm install add bes-ajax --save`
+`$npm install bes-ajax --save`
 
 `import besAjax from 'bes-ajax';`
 
@@ -61,11 +64,11 @@
 
 * run
        
-`$npm install`
+	- `$npm install`
        
-`$npm build`
+	- `$npm build`
 
-* inclued dist script in html.
+* dist script at `/dist/cdn.js`.
 
 ### Concept ###
 
@@ -99,7 +102,7 @@ If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolve
 
 **4.Compacity**
 
-For browser compacity, include [fetch polyfill](https://github.com/github/fetch).
+For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
   
 
 # Document
@@ -147,7 +150,7 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 - Global error handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
 
-### BesAjaxObject.on('pool', `Function`)
+### BesAjaxObject.taskPool.on('pool', `Function`)
 - Fired when exePool/waitingPool push/remove tasks.
 
 ### BesRequestObject
