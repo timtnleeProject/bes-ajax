@@ -8,25 +8,25 @@
 
 
 ### Create request ###
-    const besAjax = BesAjaxRequest();
+	const besAjax = BesAjaxRequest();
     const defaultRequest = besAjax.createRequest ({
         host: 'http://127.0.0.1:3000',
         path: 'api',
-	}, {
+        }, {
         responseType: 'text',retry: 7, sleep: 1000,
         primary: 3,
         timeout: 5000,
         name: 'defaultReq'
     })
-	 
+
     defaultRequest.send().then((res)=>{
-	 //handle response
-	}).catch((e)=>{
-	  //handle error
+    	//handle response
+    }).catch((e)=>{
+    	//handle error
 	})
 
 ### Extend requests ###
-    const postRequest = defaultRequest.extend({
+	const postRequest = defaultRequest.extend({
         method: 'post',
         headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
         body: JSON.stringify({ name: 'p0855' }),
@@ -44,7 +44,7 @@
 
 **append body dynamically**
 
-    postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
+	postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
     postRequest.send();
 
 ### Demo ###
@@ -66,7 +66,7 @@
        
 	- `$npm install`
        
-	- `$npm build`
+	- `$npm run build`
 
 * dist script at `/dist/cdn.js`.
 
@@ -76,18 +76,18 @@ Belows are the steps showing how it works.
 
 **1.Create BesAjaxObject**
 
-Once you create a [`BesAjaxObject`](#BesAjaxObject), you can create and extand requests from it, and `BesAjaxObject` will handle all requests. 
+Once you create a [`BesAjaxObject`](#BesAjaxObject), you can create and extend requests from it, and `BesAjaxObject` will handle all requests. 
 
 **2.Extend request**
 
 When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
-can add new properties or overide them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#onsuccess), [onerror](#onerror).
+can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#onsuccess), [onerror](#onerror).
 
 **2.Pool**
 
-There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while `exePool`'s length is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
+There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while length of `exePool` is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
 
-Notice that although the less primary task is moved to `waitingPool`, if the task is running ( request is already send ) , the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not compatitive with all browsers.
+Notice that although the less primary task is moved to `waitingPool`, if the task is running ( request is already send ) , the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not capacity with all browsers.
 
 `BesAjaxObject` will run all tasks ( send requests, retry requests ) in `exePool` later in callback using `setTimeout`.
 
@@ -100,7 +100,7 @@ If task is in the `exePool`, the `Promise` which return by `BesRequestObject.sen
 If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolveFirst` is set to `true` , the task will be resolve immediately and remove from `waitingPool`, otherwise it will be resolve later when it moving to `exePool`.
 
 
-**4.Compacity**
+**4.Capacity**
 
 For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
   
@@ -138,7 +138,7 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 - **default** `5`
 
 ### BesAjaxObject.resolveFirst
-- Set to `true`: when requests in `waitingPool` get reqsponse, it will be resolve immediately, to `false` :  resolve when it moving back to `exePool`.
+- Set to `true`: when requests in `waitingPool` get response, it will be resolve immediately, to `false` :  resolve when it moving back to `exePool`.
 - **type** `<Boolean>`
 - **default** `false` 
 
@@ -182,18 +182,18 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 ### fetchoptions
 - **type** `<Object>`
 - Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
-- additional/different options:
+- additional/different options: (request Url will be **url**+**query**, or **host**+**path**+**query**)
 	- headers
 		- You don't need to pass [Fetch Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/append), just pass Object or JSON format.
 		- **type**:`<Object>`/`<JSON>`
 	- url
-		- request's url. *notice: use **url**, or **host**+**path***
+		- request's url.
 		- **type** `<String>`
 	- host 
 		- request's host. _ex: 'http://example.com'_
 		- **type** `<String>`
 	- path 
-		- request's path. _ex: 'api'_
+		- request's path. _ex: 'api', '/api'_
 		- **type** `<String>`
 	- query 
 		- request's query string. _ex: 'user=xxx;id=123'_

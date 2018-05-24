@@ -5,7 +5,7 @@ function BesAjaxRequest(glob_arg) {
 
     function log(title, mes) {
         if (np.log)
-            console.log('['+title+']:',mes);
+            console.log('[' + title + ']:', mes);
     }
 
     function EventListener() {
@@ -87,7 +87,7 @@ function BesAjaxRequest(glob_arg) {
         //檢查pool大小，加入pool,pool已滿 查看是否primary task 
         if (this.exePool.length < maxSize) {
             this.exePool.push(task)
-            log('TaskPool', 'put '+task.options.name+' to exePool')
+            log('TaskPool', 'put ' + task.options.name + ' to exePool')
             this.emit('update')
             this.emit('pool')
         } else {
@@ -99,12 +99,12 @@ function BesAjaxRequest(glob_arg) {
                 lessPrimaryTask.pause()
                 this.waitingPool.push(lessPrimaryTask);
                 this.exePool.push(task)
-                log('TaskPool', 'put '+lessPrimaryTask.options.name+' from exePool to waitingPool')
-                log('TaskPool', 'put '+task.options.name+' to exePool')
+                log('TaskPool', 'put ' + lessPrimaryTask.options.name + ' from exePool to waitingPool')
+                log('TaskPool', 'put ' + task.options.name + ' to exePool')
                 this.emit('update')
                 this.emit('pool')
             } else {
-                log('TaskPool', 'put '+task.options.name+' to waitingPool')
+                log('TaskPool', 'put ' + task.options.name + ' to waitingPool')
                 this.waitingPool.push(task)
                 this.emit('pool')
             }
@@ -127,10 +127,10 @@ function BesAjaxRequest(glob_arg) {
             this.waitingPool.sort(function(a, b) {
                 return a.primary - b.primary;
             })
-            
+
             while (this.exePool.length < np.poolSize) {
                 let task = this.waitingPool.shift()
-                log('TaskPool', 'put '+task.options.name+' from waitingPool to exePool')
+                log('TaskPool', 'put ' + task.options.name + ' from waitingPool to exePool')
                 this.exePool.push(task)
                 this.emit('update')
                 this.emit('pool')
@@ -147,6 +147,7 @@ function BesAjaxRequest(glob_arg) {
         this.fetchoptions.headers = new Headers(fetchopt.headers)
         this._onsuccess = function() {};
         this._onerror = function() {};
+        this.validateUrl();
         Object.defineProperties(this, {
             'onsuccess': {
                 get: function() { return this._onsuccess },
@@ -189,6 +190,28 @@ function BesAjaxRequest(glob_arg) {
         clone.onerror = this.onerror;
         return clone;
     }
+    BesRequest.prototype.validateUrl = function() {
+        if (!this.fetchoptions)
+            return;
+        if (this.fetchoptions.host) {
+            var lre = /\/$/;
+            if (!lre.test(this.fetchoptions.host))
+                this.fetchoptions.host += '/'
+        }
+        if (this.fetchoptions.path) {
+            var lre = /\/$/;
+            var fre = /^\//;
+            if (fre.test(this.fetchoptions.path))
+                this.fetchoptions.path = this.fetchoptions.path.slice(1, this.fetchoptions.length)
+            if (lre.test(this.fetchoptions.path))
+                this.fetchoptions.path = this.fetchoptions.path.slice(0, this.fetchoptions.length - 1)
+        }
+        if (this.fetchoptions.query) {
+            var fre = /^\?/;
+            if (!fre.test(this.fetchoptions.query))
+                this.fetchoptions.query = '?' + this.fetchoptions.query;
+        }
+    }
     //extend : 先clone, 加上新的options或修改舊的options
     BesRequest.prototype.extend = function(newfetchopt, newopt) {
         let clone = this.clone();
@@ -206,6 +229,7 @@ function BesAjaxRequest(glob_arg) {
                 clone.options[i] = newopt[i]
             }
         }
+        clone.validateUrl()
         return clone
     }
     BesRequest.prototype.send = function() {
@@ -227,7 +251,7 @@ function BesAjaxRequest(glob_arg) {
                     me._onerror()
                     reject(res)
                 }
-                log('Task', 'task '+task.options.name+' done.')
+                log('Task', 'task ' + task.options.name + ' done.')
                 if (task.atWaitingPool) {
                     let index = np.taskPool.waitingPool.findIndex(function(t) {
                         return t.id === task.id;
@@ -271,9 +295,12 @@ function BesAjaxRequest(glob_arg) {
         if (this.expofn && this.count !== 0)
             this.sleep = this.expofn(this.count, this.sleep);
         let promiseStart;
-        const path = (me.fetchoptions.path) ? '/' + me.fetchoptions.path : '/';
-        const query = (me.fetchoptions.query) ? '?' + me.fetchoptions.query : '?';
-        const url = (me.fetchoptions.url) ? me.fetchoptions.url + query : me.fetchoptions.host + path + query;
+        let url;
+        if (me.fetchoptions.url) {
+            url = me.fetchoptions.url + (me.fetchoptions.query || '');
+        } else {
+            url = me.fetchoptions.host + (me.fetchoptions.path || '') + (me.fetchoptions.query || '');
+        }
         const fetchPromise = fetch(url, me.fetchoptions);
 
         if (this.options.timeout) { //設置timeout
@@ -291,32 +318,32 @@ function BesAjaxRequest(glob_arg) {
                 if (!response.ok) { //fetch won't catch 404, 500 error, etc...check response.ok
                     return Promise.reject(response.statusText)
                 }
-                log('Task', 'task "'+me.options.name+'" success with status '+response.status)
+                log('Task', 'task "' + me.options.name + '" success with status ' + response.status)
                 response = (me.type) ? response[me.type]() : response;
                 response = (response == undefined) ? true : response;
                 if (me.stop) {
-                    log('Task', me.options.name+' ready to be resolve in waitingPool.')
+                    log('Task', me.options.name + ' ready to be resolve in waitingPool.')
                     me.resolveLater(resolve, response)
                 } else {
                     resolve(response);
                 }
             }).catch(function(e) {
                 if (++me.count <= me.retry) {
-                    log('Task', 'task "'+me.options.name+'" will retry after '+me.sleep+'ms with statusText : '+e+', has tried '+me.count+' times')
+                    log('Task', 'task "' + me.options.name + '" will retry after ' + me.sleep + 'ms with statusText : ' + e + ', has tried ' + me.count + ' times')
                     setTimeout(function() {
                         if (!me.stop) {
                             me.run();
                         } else {
                             me.status = 'pause'
-                            log('Task', 'task "'+me.options.name+'" stop retry due to pause.')
+                            log('Task', 'task "' + me.options.name + '" stop retry due to pause.')
                         }
                     }, me.sleep)
                 } else {
                     if (me.stop) {
-                        log('Task', me.options.name+' ready to be reject in waitingPool.')
+                        log('Task', me.options.name + ' ready to be reject in waitingPool.')
                         me.resolveLater(reject, e)
                     } else {
-                        log('Task', 'task "'+me.options.name+'" fail with statusText '+e)
+                        log('Task', 'task "' + me.options.name + '" fail with statusText ' + e)
                         reject(e)
                     }
                 }
@@ -337,12 +364,13 @@ function BesAjaxRequest(glob_arg) {
             this.response = response;
         }
     }
-    if(!glob_arg)
+    if (!glob_arg)
         glob_arg = {}
-    np.log = glob_arg.log||false;
-    np.poolSize = glob_arg.poolSize||5;
-    np.resolveFirst = glob_arg.resolveFirst||false;
+    np.log = glob_arg.log || false;
+    np.poolSize = glob_arg.poolSize || 5;
+    np.resolveFirst = glob_arg.resolveFirst || false;
     np.taskPool = new TaskPool();
+    np.task = Task;
     np.errorHandler = function(e) {};
     np.successHandler = function(res) {};
     np.createRequest = function(fetchopt, opt) {
