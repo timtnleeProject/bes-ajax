@@ -5,7 +5,7 @@ function BesAjaxRequest(glob_arg) {
 
     function log(title, mes) {
         if (np.log)
-            console.log(`[${title}] : ${mes}`);
+            console.log('['+title+']:',mes);
     }
 
     function EventListener() {
@@ -45,7 +45,7 @@ function BesAjaxRequest(glob_arg) {
     TaskPool.prototype = Object.create(EventListener.prototype);
     TaskPool.prototype.constructor = TaskPool;
     TaskPool.prototype.execute = function() {
-        log('TaskPool', `Execute exePool`);
+        log('TaskPool', 'Execute exePool');
         this.exePool.forEach(function(task) {
             let status = task.status
             if (status === 'init') {
@@ -87,7 +87,7 @@ function BesAjaxRequest(glob_arg) {
         //檢查pool大小，加入pool,pool已滿 查看是否primary task 
         if (this.exePool.length < maxSize) {
             this.exePool.push(task)
-            log('TaskPool', `put ${task.options.name} to exePool`)
+            log('TaskPool', 'put '+task.options.name+' to exePool')
             this.emit('update')
             this.emit('pool')
         } else {
@@ -99,12 +99,12 @@ function BesAjaxRequest(glob_arg) {
                 lessPrimaryTask.pause()
                 this.waitingPool.push(lessPrimaryTask);
                 this.exePool.push(task)
-                log('TaskPool', `put ${lessPrimaryTask.options.name} from exePool to waitingPool`)
-                log('TaskPool', `put ${task.options.name} to exePool`)
+                log('TaskPool', 'put '+lessPrimaryTask.options.name+' from exePool to waitingPool')
+                log('TaskPool', 'put '+task.options.name+' to exePool')
                 this.emit('update')
                 this.emit('pool')
             } else {
-                log('TaskPool', `put ${task.options.name} to waitingPool`)
+                log('TaskPool', 'put '+task.options.name+' to waitingPool')
                 this.waitingPool.push(task)
                 this.emit('pool')
             }
@@ -130,7 +130,7 @@ function BesAjaxRequest(glob_arg) {
             
             while (this.exePool.length < np.poolSize) {
                 let task = this.waitingPool.shift()
-                log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
+                log('TaskPool', 'put '+task.options.name+' from waitingPool to exePool')
                 this.exePool.push(task)
                 this.emit('update')
                 this.emit('pool')
@@ -227,7 +227,7 @@ function BesAjaxRequest(glob_arg) {
                     me._onerror()
                     reject(res)
                 }
-                log('Task', `task ${task.options.name} done.`)
+                log('Task', 'task '+task.options.name+' done.')
                 if (task.atWaitingPool) {
                     let index = np.taskPool.waitingPool.findIndex(function(t) {
                         return t.id === task.id;
@@ -291,32 +291,32 @@ function BesAjaxRequest(glob_arg) {
                 if (!response.ok) { //fetch won't catch 404, 500 error, etc...check response.ok
                     return Promise.reject(response.statusText)
                 }
-                log('Task', `task "${me.options.name}" success with status ${response.status}`)
+                log('Task', 'task "'+me.options.name+'" success with status '+response.status)
                 response = (me.type) ? response[me.type]() : response;
                 response = (response == undefined) ? true : response;
                 if (me.stop) {
-                    log('Task', `${me.options.name} ready to be resolve in waitingPool.`)
+                    log('Task', me.options.name+' ready to be resolve in waitingPool.')
                     me.resolveLater(resolve, response)
                 } else {
                     resolve(response);
                 }
             }).catch(function(e) {
                 if (++me.count <= me.retry) {
-                    log('Task', `task "${me.options.name}" will retry after ${me.sleep}ms with statusText : ${e}, has tried ${me.count} times`)
+                    log('Task', 'task "'+me.options.name+'" will retry after '+me.sleep+'ms with statusText : '+e+', has tried '+me.count+' times')
                     setTimeout(function() {
                         if (!me.stop) {
                             me.run();
                         } else {
                             me.status = 'pause'
-                            log('Task', `task "${me.options.name}" stop retry due to pause.`)
+                            log('Task', 'task "'+me.options.name+'" stop retry due to pause.')
                         }
                     }, me.sleep)
                 } else {
                     if (me.stop) {
-                        log('Task', `${me.options.name} ready to be reject in waitingPool.`)
+                        log('Task', me.options.name+' ready to be reject in waitingPool.')
                         me.resolveLater(reject, e)
                     } else {
-                        log('Task', `task "${me.options.name}" fail with statusText ${e}`)
+                        log('Task', 'task "'+me.options.name+'" fail with statusText '+e)
                         reject(e)
                     }
                 }
