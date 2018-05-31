@@ -243,12 +243,12 @@ function BesAjaxRequest(glob_arg) {
                 if (status === 'success') {
                     //if 共同成功回呼...
                     np.successHandler(res, task.options.name)
-                    me._onsuccess()
+                    me._onsuccess(res)
                     resolve(res)
                 } else if (status === 'fail') {
                     //共同失敗處理
                     np.errorHandler(res, task.options.name)
-                    me._onerror()
+                    me._onerror(res)
                     reject(res)
                 }
                 log('Task', 'task ' + task.options.name + ' done.')

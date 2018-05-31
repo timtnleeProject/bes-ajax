@@ -2,34 +2,35 @@
 **A ajax handler using fetch API.**
 
 * Create default request.
-* Extend requests based on default/other requests.
+* Extend requests based on default/other requests, share same basic options and success, error functions.
 * Retry when requests fail.
 * Sort requests by their priorities.
 
 
 ### Create request ###
-	const besAjax = BesAjaxRequest();
+    
+    const besAjax = BesAjaxRequest();
     const defaultRequest = besAjax.createRequest ({
         host: 'http://127.0.0.1:3000',
         path: 'api',
-        }, {
+    }, {
         responseType: 'text',retry: 7, sleep: 1000,
         primary: 3,
         timeout: 5000,
         name: 'defaultReq'
     })
-
-    defaultRequest.send().then((res)=>{
-    	//handle response
-    }).catch((e)=>{
-    	//handle error
-	})
+	
+    defaultRequest.onsuccess = function(res) {
+        console.log('result:', res)
+    }
 
 ### Extend requests ###
-	const postRequest = defaultRequest.extend({
+	
+    const postRequest = defaultRequest.extend({
         method: 'post',
         headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
         body: JSON.stringify({ name: 'p0855' }),
+        path: '/api'
     }, {
 	    retry:0,
 	    responseType: 'json',
@@ -37,15 +38,27 @@
 	    name: 'postReq',
     });
     
-    postRequest.onsuccess = function () {
+    postRequest.onsuccess = function (res) {
        console.log('post request success!')
     }
     postRequest.send();
 
 **append body dynamically**
 
-	postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
+    postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'});
     postRequest.send();
+    
+**promise**
+
+    defaultRequest.send().then((res1)=>{
+    	//first response
+        postRequest.fetchoptions.body = JSON.stringify({name: res1});
+        return postRequest.send();
+    }).then((res2)=>{
+    	//second response
+    }).catch((e)=>{
+        //handle error
+	})
 
 ### Demo ###
 [demo page](https://bes-ajax-demo.herokuapp.com/fetch.html)
@@ -76,7 +89,7 @@ Belows are the steps showing how it works.
 
 **1.Create BesAjaxObject**
 
-Once you create a [`BesAjaxObject`](#BesAjaxObject), you can create and extend requests from it, and `BesAjaxObject` will handle all requests. 
+Once you create a [`BesAjaxObject`](#besajaxobject), you can create and extend requests from it, and `BesAjaxObject` will handle all requests. 
 
 **2.Extend request**
 
@@ -110,7 +123,7 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 ### BesAjaxRequest()
 - create a new BesAjaxObject.
 - **type** `<Function>`
-- **return** [`BesAjaxObject`](#BesAjaxObject)  
+- **return** [`BesAjaxObject`](#besajaxobject)  
 
 ### BesAjaxObject
 - This object can create request object, handle execute pool and waiting pool.
@@ -122,7 +135,7 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 - **parameters**
 	- `fetchOptions`
 	- `options` 
-- **return** [`BesRequestObject`](#BesRequestObject)
+- **return** [`BesRequestObject`](#besrequestobject)
 
 ### BesAjaxObject.log
 - Turn logs on/off
@@ -174,10 +187,14 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 ### BesRequestObject.onsuccess
 - execute when task success, will extend ancestor requests' onsuccess function.
 - **type** `<Function>` 
+- **parameters**
+	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
 
 ### BesRequestObject.onerror
 - execute when task error, will extend ancestor requests' onerror function.
 - **type** `<Function>` 
+- **parameters**
+	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
 
 ### fetchoptions
 - **type** `<Object>`

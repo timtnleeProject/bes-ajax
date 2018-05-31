@@ -13,6 +13,7 @@
   },
   "keywords": [
     "ajax",
+    "fetch",
     "webpack"
   ],
   "author": "timtnlee",
