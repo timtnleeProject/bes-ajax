@@ -4,7 +4,7 @@
   "description": "Ajax handler using fetch API",
   "main": "./src/ajax.js",
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --config build/webpack.config.js && webpack --config build/prod.config.js",
     "test": "mocha"
   },
   "repository": {
@@ -12,7 +12,8 @@
     "url": "git+https://github.com/timtnleeProject/bes-ajax.git"
   },
   "keywords": [
-    "ajax"
+    "ajax",
+    "webpack"
   ],
   "author": "timtnlee",
   "license": "ISC",

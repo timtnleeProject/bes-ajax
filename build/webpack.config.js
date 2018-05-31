@@ -1,13 +1,14 @@
 const path = require('path');
 
 module.exports = {
+	mode:'development',
 	entry: './build.js',
 	output: {
 		filename : 'cdn.js',
-		path: path.resolve(__dirname, 'dist')
+		path: path.resolve(__dirname, '../dist')
 	},
 	module: {
-		loaders:[{
+		rules:[{
 			test: /\.js$/,
 			exclude: /node_modules/,
 			loader: 'babel-loader'
