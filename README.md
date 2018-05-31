@@ -6,63 +6,75 @@
 * Retry when requests fail.
 * Sort requests by their priorities.
 
+---
 
 ### Create request ###
     
-    const besAjax = BesAjaxRequest();
-    const defaultRequest = besAjax.createRequest ({
-        host: 'http://127.0.0.1:3000',
-        path: 'api',
-    }, {
-        responseType: 'text',retry: 7, sleep: 1000,
-        primary: 3,
-        timeout: 5000,
-        name: 'defaultReq'
-    })
+```
+const besAjax = BesAjaxRequest();
+const defaultRequest = besAjax.createRequest ({
+  host: 'http://127.0.0.1:3000',
+  path: 'api',
+}, {
+  responseType: 'text',retry: 7, sleep: 1000,
+  primary: 3,
+  timeout: 5000,
+  name: 'defaultReq'
+})
 	
-    defaultRequest.onsuccess = function(res) {
-        console.log('result:', res)
-    }
+defaultRequest.onsuccess = function(res) {
+  console.log('result:', res)
+}
+```
 
 ### Extend requests ###
 	
-    const postRequest = defaultRequest.extend({
-        method: 'post',
-        headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
-        body: JSON.stringify({ name: 'p0855' }),
-        path: '/api'
-    }, {
-	    retry:0,
-	    responseType: 'json',
-	    primary: 0, 
-	    name: 'postReq',
-    });
-    
-    postRequest.onsuccess = function (res) {
-       console.log('post request success!')
-    }
-    postRequest.send();
+```
+const postRequest = defaultRequest.extend({
+  method: 'post',
+  headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
+  body: JSON.stringify({ name: 'p0855' }),
+  path: '/api'
+}, {
+  retry:0,
+  responseType: 'json',
+  primary: 0, 
+  name: 'postReq',
+});
+
+postRequest.onsuccess = function (res) {
+  console.log('post request success!')
+}
+postRequest.send();
+```
 
 **append body dynamically**
 
-    postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'});
-    postRequest.send();
-    
+```
+postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'});
+postRequest.send();
+```  
+
 **promise**
 
-    defaultRequest.send().then((res1)=>{
-    	//first response
-        postRequest.fetchoptions.body = JSON.stringify({name: res1});
-        return postRequest.send();
-    }).then((res2)=>{
-    	//second response
-    }).catch((e)=>{
-        //handle error
-	})
+```
+defaultRequest.send().then((res1)=>{
+  //first response
+  postRequest.fetchoptions.body = JSON.stringify({name: res1});
+  return postRequest.send();
+}).then((res2)=>{
+  //second response
+}).catch((e)=>{
+  //handle error
+})
+ ```
+
+---
 
 ### Demo ###
 [demo page](https://bes-ajax-demo.herokuapp.com/fetch.html)
 
+---
 
 ### Installation ###
 **webpack**
@@ -82,6 +94,8 @@
 	- `$npm run build`
 
 * dist script at `/dist/cdn.js`.
+
+---
 
 ### Concept ###
 
@@ -116,6 +130,7 @@ If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolve
 **4.Capacity**
 
 For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
+
   
 
 # Document

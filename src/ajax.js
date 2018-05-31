@@ -114,8 +114,6 @@ function BesAjaxRequest(glob_arg) {
         let index = this.exePool.findIndex(function(t) {
             return t.id === id
         })
-        // if (index < 0)
-        //     console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ' + name)
         this.exePool.splice(index, 1)
         this.emit('pool')
         this.releaseId(id)
@@ -145,17 +143,17 @@ function BesAjaxRequest(glob_arg) {
         this.fetchoptions = fetchopt;
         this.options = opt;
         this.fetchoptions.headers = new Headers(fetchopt.headers)
-        this._onsuccess = function() {};
-        this._onerror = function() {};
+        this._onsuccess = function(res) {};
+        this._onerror = function(res) {};
         this.validateUrl();
         Object.defineProperties(this, {
             'onsuccess': {
                 get: function() { return this._onsuccess },
                 set: function(fn) {
                     let origin = this._onsuccess;
-                    let newone = function() {
-                        origin.call(this);
-                        fn.call(this)
+                    let newone = function(res) {
+                        origin.call(this,res);
+                        fn.call(this,res)
                     }
                     this._onsuccess = newone;
                 }
@@ -164,9 +162,9 @@ function BesAjaxRequest(glob_arg) {
                 get: function() { return this._onerror },
                 set: function(fn) {
                     let origin = this._onerror;
-                    let newone = function() {
-                        origin.call(this);
-                        fn.call(this)
+                    let newone = function(res) {
+                        origin.call(this,res);
+                        fn.call(this,res)
                     }
                     this._onerror = newone;
                 }
