@@ -140,8 +140,8 @@ function BesAjaxRequest(glob_arg) {
 
     function BesRequest(fetchopt, opt) {
         EventListener.call(this);
-        this.fetchoptions = fetchopt;
-        this.options = opt;
+        this.fetchoptions = fetchopt||{};
+        this.options = opt||{};
         this.fetchoptions.headers = new Headers(fetchopt.headers)
         this._onsuccess = function(res) {};
         this._onerror = function(res) {};

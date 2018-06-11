@@ -10,7 +10,7 @@
 
 ### Create request ###
     
-```
+```js
 const besAjax = BesAjaxRequest();
 const defaultRequest = besAjax.createRequest ({
   host: 'http://127.0.0.1:3000',
@@ -29,7 +29,7 @@ defaultRequest.onsuccess = function(res) {
 
 ### Extend requests ###
 	
-```
+```js
 const postRequest = defaultRequest.extend({
   method: 'post',
   headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
@@ -50,14 +50,14 @@ postRequest.send();
 
 **append body dynamically**
 
-```
+```js
 postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'});
 postRequest.send();
 ```  
 
 **promise**
 
-```
+```js
 defaultRequest.send().then((res1)=>{
   //first response
   postRequest.fetchoptions.body = JSON.stringify({name: res1});
@@ -79,9 +79,13 @@ defaultRequest.send().then((res1)=>{
 ### Installation ###
 **webpack**
 
-`$npm install bes-ajax --save`
+```bash
+$npm install bes-ajax --save
+```
 
-`import besAjax from 'bes-ajax';`
+```js
+import besAjax from 'bes-ajax';
+```
 
 **Build script**
 
@@ -89,11 +93,15 @@ defaultRequest.send().then((res1)=>{
 
 * run
        
-	- `$npm install`
-       
-	- `$npm run build`
+```bash
+$npm install
+```
 
-* dist script at `/dist/cdn.js`.
+```bash
+$npm run build
+```
+
+* bundled script at `/dist/cdn.js`.
 
 ---
 
@@ -108,7 +116,7 @@ Once you create a [`BesAjaxObject`](#besajaxobject), you can create and extend r
 **2.Extend request**
 
 When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
-can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#onsuccess), [onerror](#onerror).
+can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#BesRequestObject.onsuccess), [onerror](#BesRequestObject.onerror).
 
 **2.Pool**
 
