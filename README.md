@@ -116,7 +116,7 @@ Once you create a [`BesAjaxObject`](#besajaxobject), you can create and extend r
 **2.Extend request**
 
 When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
-can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#BesRequestObject.onsuccess), [onerror](#BesRequestObject.onerror).
+can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#besrequestobjectonsuccess), [onerror](#besrequestobjectonerror).
 
 **2.Pool**
 
