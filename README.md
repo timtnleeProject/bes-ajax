@@ -12,7 +12,7 @@
     
 ```js
 const besAjax = BesAjaxRequest({
-	log: false,
+    log: false,
     abort: false,
     resolveFirst: false,
     poolSize: 3
