@@ -1,4 +1,4 @@
-## BesAjax
+## BesAjax ##
 **A ajax handler using fetch API.**
 
 * Create default request.
@@ -11,12 +11,20 @@
 ### Create request ###
     
 ```js
-const besAjax = BesAjaxRequest();
+const besAjax = BesAjaxRequest({
+	log: false,
+    abort: false,
+    resolveFirst: false,
+    poolSize: 3
+});
+
 const defaultRequest = besAjax.createRequest ({
   host: 'http://127.0.0.1:3000',
   path: 'api',
 }, {
-  responseType: 'text',retry: 7, sleep: 1000,
+  responseType: 'text',
+  retry: 7, 
+  sleep: 1000,
   primary: 3,
   timeout: 5000,
   name: 'defaultReq'
@@ -72,7 +80,10 @@ defaultRequest.send().then((res1)=>{
 ---
 
 ### Demo ###
-[demo page](https://bes-ajax-demo.herokuapp.com/fetch.html)
+
+**live demo**
+
+[demo page](https://bes-ajax-demo.herokuapp.com/)
 
 ---
 
@@ -89,7 +100,7 @@ import besAjax from 'bes-ajax';
 
 **Build script**
 
-* Clone the repo.
+* Clone the repository.
 
 * run
        
@@ -101,7 +112,7 @@ $npm install
 $npm run build
 ```
 
-* bundled script at `/dist/cdn.js`.
+* bundled script at `/dist/cdn.min.js`.
 
 ---
 
@@ -122,13 +133,13 @@ can add new properties or override them, see [options](#options) and [fetchoptio
 
 There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while length of `exePool` is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
 
-Notice that although the less primary task is moved to `waitingPool`, if the task is running ( request is already send ) , the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not capacity with all browsers.
+Notice that when the less primary task is moved to `waitingPool` and the request has already sent, if `BesAjaxObject.abort` is set to `true`, the request will be aborted using [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort), otherwise the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not capacity with all browsers, be careful with using this feature.
 
 `BesAjaxObject` will run all tasks ( send requests, retry requests ) in `exePool` later in callback using `setTimeout`.
 
 **3.Resolve**
 
-When response return:
+If not using abortion, when response return:
 
 If task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
 
@@ -141,18 +152,18 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 
   
 
-# Document
+# Document #
 
-### BesAjaxRequest()
+### BesAjaxRequest() ###
 - create a new BesAjaxObject.
 - **type** `<Function>`
 - **return** [`BesAjaxObject`](#besajaxobject)  
 
-### BesAjaxObject
+### BesAjaxObject ###
 - This object can create request object, handle execute pool and waiting pool.
 - **type** `<Object>`
 
-### BesAjaxObject.createRequest(`fetchOptions`,`options`)
+### BesAjaxObject.createRequest(`fetchOptions`,`options`) ###
 - create a request object.
 - **type** `<Function>`
 - **parameters**
@@ -160,7 +171,7 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 	- `options` 
 - **return** [`BesRequestObject`](#besrequestobject)
 
-### BesAjaxObject.log
+### BesAjaxObject.log ###
 - Turn logs on/off
 - **type** `<Boolean>`
 - **default** `false`
@@ -168,32 +179,37 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 	- `true`:turn on logs.
 	- `false`:turn off logs.
 
-### BesAjaxObject.poolSize
+### BesAjaxObject.poolSize ###
 - Max size of execute pool.
 - **type** `<Integer>`
 - **default** `5`
 
-### BesAjaxObject.resolveFirst
+### BesAjaxObject.abort ###
+- Using [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) to abort request when task is pushed to waitingPool.
+- **type** `<Boolean>`
+- **default** `false`
+
+### BesAjaxObject.resolveFirst ###
 - Set to `true`: when requests in `waitingPool` get response, it will be resolve immediately, to `false` :  resolve when it moving back to `exePool`.
 - **type** `<Boolean>`
 - **default** `false` 
 
-### BesAjaxObject.successHandler(`responseObject`)
+### BesAjaxObject.successHandler(`responseObject`) ###
 - Global response success handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
 
-### BesAjaxObject.errorHandler(`e`)
+### BesAjaxObject.errorHandler(`e`) ###
 - Global error handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
 
-### BesAjaxObject.taskPool.on('pool', `Function`)
+### BesAjaxObject.taskPool.on('pool', `Function`) ###
 - Fired when exePool/waitingPool push/remove tasks.
 
-### BesRequestObject
+### BesRequestObject ###
 - Request object
 - **type** `<Object>`
 
-### BesRequestObject.extend(`fetchOptions`,`options`)
+### BesRequestObject.extend(`fetchOptions`,`options`) ###
 - Create another `BesRequestObject` extended `fetchOptions`, `options`
 -Properties in `fetchOptions`, `options` will overwrite the same properties in original `fetchOptions`, `options` in `BesRequestObject`. But only `fetchOptions.headers` will use `Headers.append()`, see [Fetch Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/append).
 - **type** `<Function>`
@@ -202,24 +218,24 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 	- `options`
 - **return** `BesRequestObject`
 
-### BesRequestObject.send()
+### BesRequestObject.send() ###
 - Send request.
 - **type** `<Function>`
 - **return** `Promise`
 
-### BesRequestObject.onsuccess
+### BesRequestObject.onsuccess ###
 - execute when task success, will extend ancestor requests' onsuccess function.
 - **type** `<Function>` 
 - **parameters**
 	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
 
-### BesRequestObject.onerror
+### BesRequestObject.onerror ###
 - execute when task error, will extend ancestor requests' onerror function.
 - **type** `<Function>` 
 - **parameters**
 	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
 
-### fetchoptions
+### fetchoptions ###
 - **type** `<Object>`
 - Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
 - additional/different options: (request Url will be **url**+**query**, or **host**+**path**+**query**)
@@ -239,7 +255,7 @@ For browser capacity, we have require [fetch polyfill](https://github.com/github
 		- request's query string. _ex: 'user=xxx;id=123'_
 		- **type** `<String>`   
 
-### options
+### options ###
 - BesRequestObject options
 - **type** `<Object>`
 - **options**

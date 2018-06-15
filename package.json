@@ -4,7 +4,8 @@
   "description": "Ajax handler using fetch API",
   "main": "./src/ajax.js",
   "scripts": {
-    "build": "webpack --config build/webpack.config.js && webpack --config build/prod.config.js",
+    "start": "webpack-dev-server --config build/webpack.config.js",
+    "build": "webpack --config build/prod.config.js",
     "test": "mocha"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "babel-preset-es2015": "^6.24.1",
     "mocha": "^5.2.0",
     "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.3"
+    "webpack-cli": "^2.1.3",
+    "webpack-dev-server": "^3.1.4"
   }
 }

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch demo</title>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!--vue.js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <!-- besTemplate -->
+    <script src="scripts/besTemplate.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
+    <!-- customer script style -->
+    <style type="text/css">
+    #app {padding: 10px;}.flex {align-items: flex-start;display: flex;margin-bottom: 10px;}.flex-col {margin-right: 20px;display: flex;justify-content: center;flex-direction: column;}.pool {flex-basis: 150px;text-align: center;}.box {width: 100%;box-sizing: border-box;border: 1px solid black;}input {text-align: center;}
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h3>BesAjaxRequest</h3>
+        <h4>Open Console To See Requests' logs.</h4>
+        <p>Have any question: litingen1995@gmail.com</p>
+        <div class="flex" style="flex-wrap: wrap;">
+            <div class="flex-col">
+                <label>delay,primary {{delayRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest" :style="{backgroundColor:delayRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>delay post,primary {{postRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="postRequest" :style="{backgroundColor:postRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant,primary {{instantRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest" :style="{backgroundColor:instantRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant2,primary {{instantRequest2.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest2" :style="{backgroundColor:instantRequest2.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>send 10 badRequest 10</label>
+                <button class="btn btn-primary" onclick="sendBadRequest()" style="background-color: red">send</button>
+            </div>
+        </div>
+        <div class="flex">
+            <div class="contain-box flex-col pool">
+                <h4>Settings</h4>
+                <h5>poolSize</h5>
+                <input type="text" v-model="controll.poolSize">
+                <h5>log</h5>
+                <on-off-btn v-model="controll.log"></on-off-btn>
+                <h5>resolveFirst</h5>
+                <on-off-btn v-model="controll.resolveFirst"></on-off-btn>
+                <h5>abort</h5>
+                <on-off-btn v-model="controll.abort"></on-off-btn>
+            </div>
+            <div class="contain-box flex-col pool">
+                <h4>exePool</h4>
+                <div class="box" v-for="t in exePool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col pool">
+                <h4>waitingPool</h4>
+                <div class="box" v-for="t in waitingPool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col">
+                <h4>results ( 30 lines ):</h4>
+                <div v-for="r in results">{{r}}</div>
+            </div>
+        </div>
+    </div>
+    <script src="cdn.js"></script>
+    <script type="text/javascript">
+    /*  BesAjaxRequest(options)
+        @params options: object 
+        這些是default值
+    */
+    var besAjax = BesAjaxRequest({
+        log : false,
+        resolveFirst: false,
+        poolSize: 5
+    });
+    /*也可之後再做設定*/
+    besAjax.abort= false;
+    besAjax.log=true;
+    besAjax.poolSize = 3;
+    /*產生一個root request*/
+    var defaultRequest = besAjax.createRequest({//第一個option是request的參數
+        host: 'https://my-test-api1080.herokuapp.com/' 
+    }, {//第二個option是處理request的設定 ex: timeout   這裡的color只是我做demo用, 非模組內的參數
+        responseType: 'text',
+        primary: 5,
+        timeout: 4000,
+        color:'lightgray',
+    })
+    //每個request可以有自己的onsucces, onerror functions, child request也會繼承到
+    defaultRequest.onsuccess = function(){
+        if(window.chrome)
+            console.log('%c request success :)','font-size:large;font-weight:bold');
+        else
+            console.log('request success :)')
+    }
+     defaultRequest.onerror = function(){
+        if(window.chrome)
+            console.log('%c request failed :(','font-size:large;font-weight:bold;color:red');
+        else
+            console.log('request failed :(')
+    }
+    /*之後便可以根據先前的request繼承產生不同的新的request*/
+    var badRequest = defaultRequest.extend({
+        path: '/fatal'
+    }, {
+        retry: 5,
+        sleep: 500,
+        primary:10,
+        //expofn: function(x,a){let y=a+(x)*100; return (y>3000)?3000:y;},
+        color:'red',
+    })
+    var delayRequest = defaultRequest.extend({
+        path: '/delay'
+    }, {
+        name: 'delayRequest',//取名字, 在log或是debug時候就能知道是哪一個request
+        primary: 0,//優先順序 0 最優先
+        color: 'rgba(0,0,255,0.7)',
+    })
+    var instantRequest = defaultRequest.extend({
+        path: '/json'
+    }, {
+        name: 'instantRequest1',
+        primary: 1,
+        responseType: 'json'//處理response的方式：response回來是一個body物件，用text, json, blob等等方式處理(詳見fetch的response物件)
+    })
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            results: [],
+            exePool: [],
+            waitingPool: [],
+            controll : besAjax,
+            delayRequest: delayRequest,
+            postRequest: delayRequest.extend({
+                method: 'post',
+                path:'json',
+                body: JSON.stringify({ "name": "postRequest" }),
+                headers: { 'Content-Type': 'application/json' }
+            }, {
+                name: 'postRequest',
+                primary: 2,
+                color:'rgba(188,188,0,0.7)'
+            }),
+            instantRequest: instantRequest,
+            instantRequest2: instantRequest.extend({}, { name: 'instantRequest5', primary: 5, responseType: 'text' })
+        }
+    })
+
+    //這個是global的success, error handle function, 所有besAjax產生的request都套用
+    besAjax.successHandler = function(res, name) {
+        app.results.unshift('['+name+' done]: response: '+res)
+        if (app.results.length > 30)
+            app.results.pop()
+    }
+    besAjax.errorHandler = function(e, name) {
+        app.results.unshift('['+name+' fail]: error: '+e)
+        if (app.results.length > 30)
+            app.results.pop()
+    }
+    //on pool, pool發生變化時，也是為了demo平常應該不太會用到
+    besAjax.taskPool.on('pool', function() {
+        app.exePool = besAjax.taskPool.exePool;
+        app.waitingPool = besAjax.taskPool.waitingPool
+    })
+
+    function sendBadRequest() {
+        for (var i = 0; i < 15; i++) {
+            badRequest.extend({ query: 'index='+i }, { name: 'badRequest'+i }).send()
+                .then(function(res) {})
+                .catch(function(e) {})
+        }
+    }
+    sendBadRequest();
+    for(var i=0;i<5;i++){
+        delayRequest.extend({query:'i='+i},{primary:4,name:'delayRequest4',color: 'rgba(0,0,255,0.2)',}).send()
+    }
+    for(var i=0;i<5;i++){
+        delayRequest.extend({path:'delay',query:'i='+i},{name:'delayRequest2',primary:2,color: 'rgba(188,188,0,0.2)'}).send()
+    }
+    setTimeout(function(){
+        for(var i=0;i<5;i++){
+            delayRequest.extend({path:'delay2',query:'i='+i},{primary:0,name:'delayRequest0'}).send()
+        }
+    },100)
+    
+    </script>
+</body>
+
+</html>
