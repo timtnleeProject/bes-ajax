@@ -1,4 +1,5 @@
-## BesAjax ##
+# BesAjax #
+
 **A ajax handler using fetch API.**
 
 * Create default request.
@@ -6,16 +7,16 @@
 * Retry when requests fail.
 * Sort requests by their priorities.
 
----
+## Example ##
 
-### Create request ###
+### create request ###
     
 ```js
 const besAjax = BesAjaxRequest({
-	log: false,
-    abort: false,
-    resolveFirst: false,
-    poolSize: 3
+  log: false,
+  abort: false,
+  resolveFirst: false,
+  poolSize: 3
 });
 
 const defaultRequest = besAjax.createRequest ({
@@ -31,11 +32,11 @@ const defaultRequest = besAjax.createRequest ({
 })
 	
 defaultRequest.onsuccess = function(res) {
-  console.log('result:', res)
+  console.log(this.options.name + ' success:', res)
 }
 ```
 
-### Extend requests ###
+### extend requests ###
 	
 ```js
 const postRequest = defaultRequest.extend({
@@ -48,19 +49,19 @@ const postRequest = defaultRequest.extend({
   responseType: 'json',
   primary: 0, 
   name: 'postReq',
-});
+})
 
 postRequest.onsuccess = function (res) {
   console.log('post request success!')
 }
-postRequest.send();
+postRequest.send()
 ```
 
 **append body dynamically**
 
 ```js
-postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'});
-postRequest.send();
+postRequest.fetchoptions.body = JSON.stringify({name: 'weruy1'})
+postRequest.send()
 ```  
 
 **promise**
@@ -68,8 +69,8 @@ postRequest.send();
 ```js
 defaultRequest.send().then((res1)=>{
   //first response
-  postRequest.fetchoptions.body = JSON.stringify({name: res1});
-  return postRequest.send();
+  postRequest.fetchoptions.body = JSON.stringify({name: res1})
+  return postRequest.send()
 }).then((res2)=>{
   //second response
 }).catch((e)=>{
@@ -77,78 +78,83 @@ defaultRequest.send().then((res1)=>{
 })
  ```
 
----
-
-### Demo ###
+## Demo ##
 
 **live demo**
 
 [demo page](https://bes-ajax-demo.herokuapp.com/)
 
----
 
-### Installation ###
-**webpack**
+## Installation ##
 
+### Webpack ###
+
+**Install package**
 ```bash
 $npm install bes-ajax --save
 ```
-
+**Import in your script**
 ```js
 import besAjax from 'bes-ajax';
 ```
 
-**Build script**
+### Get Build script ###
 
-* Clone the repository.
+Clone the repository.
 
-* run
-       
+**Install dependencies**
+
 ```bash
 $npm install
 ```
+**Build dist script**
 
 ```bash
 $npm run build
 ```
 
-* bundled script at `/dist/cdn.min.js`.
+Bundled script at `/dist/cdn.min.js`.
 
----
+**Run example**
 
-### Concept ###
-
-Belows are the steps showing how it works.
-
-**1.Create BesAjaxObject**
-
-Once you create a [`BesAjaxObject`](#besajaxobject), you can create and extend requests from it, and `BesAjaxObject` will handle all requests. 
-
-**2.Extend request**
-
-When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
-can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#besrequestobjectonsuccess), [onerror](#besrequestobjectonerror).
-
-**2.Pool**
-
-There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while length of `exePool` is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
-
-Notice that when the less primary task is moved to `waitingPool` and the request has already sent, if `BesAjaxObject.abort` is set to `true`, the request will be aborted using [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort), otherwise the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not capacity with all browsers, be careful with using this feature.
-
-`BesAjaxObject` will run all tasks ( send requests, retry requests ) in `exePool` later in callback using `setTimeout`.
-
-**3.Resolve**
-
-If not using abortion, when response return:
-
-If task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
-
-If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolveFirst` is set to `true` , the task will be resolve immediately and remove from `waitingPool`, otherwise it will be resolve later when it moving to `exePool`.
+```bash
+$npm start
+```
+dev server on `localhost/8000`
 
 
-**4.Capacity**
+## Concept ##
 
-For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
+How it works?
+ 
+**Create BesAjaxObject**
+> 
+> Once you create a [`BesAjaxObject`](#besajaxobject), you can create and extend requests from it, and `BesAjaxObject` will handle all requests. 
+ 
+**Extend request**
+ 
+> When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
+> can add new properties or override them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#besrequestobjectonsuccess), [onerror](#besrequestobjectonerror).
+ 
+**Pool**
+
+> There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while length of `exePool` is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
+>
+> Notice that when the less primary task is moved to `waitingPool` and the request has already sent, if `BesAjaxObject.abort` is set to `true`, the request will be aborted using [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort), otherwise the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not capacity with all browsers, be careful with using this feature.
+>
+> `BesAjaxObject` will run all tasks ( send requests, retry requests ) in `exePool` later in callback using `setTimeout`.
+
+**Resolve**
+ 
+> If not using abortion, when response return:
+>
+> If task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
+>
+> If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolveFirst` is set to `true` , the task will be resolve immediately and remove from `waitingPool`, otherwise it will be resolve later when it moving to `exePool`. 
+
+**Capacity**
+
+> For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
 
   
 
