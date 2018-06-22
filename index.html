@@ -13,7 +13,37 @@
     <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
     <!-- customer script style -->
     <style type="text/css">
-    #app {padding: 10px;}.flex {align-items: flex-start;display: flex;margin-bottom: 10px;}.flex-col {margin-right: 20px;display: flex;justify-content: center;flex-direction: column;}.pool {flex-basis: 150px;text-align: center;}.box {width: 100%;box-sizing: border-box;border: 1px solid black;}input {text-align: center;}
+    #app {
+        padding: 10px;
+    }
+
+    .flex {
+        align-items: flex-start;
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .flex-col {
+        margin-right: 20px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .pool {
+        flex-basis: 150px;
+        text-align: center;
+    }
+
+    .box {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid black;
+    }
+
+    input {
+        text-align: center;
+    }
     </style>
 </head>
 
@@ -73,37 +103,37 @@
     <script src="cdn.js"></script>
     <script type="text/javascript">
     /*  BesAjaxRequest(options)
-        @params options: object 
-        這些是default值
-    */
+            @params options: object 
+            這些是default值
+        */
     var besAjax = BesAjaxRequest({
-        log : false,
+        log: false,
         resolveFirst: false,
         poolSize: 5
     });
     /*也可之後再做設定*/
-    besAjax.abort= false;
-    besAjax.log=true;
+    besAjax.abort = false;
+    besAjax.log = true;
     besAjax.poolSize = 3;
     /*產生一個root request*/
-    var defaultRequest = besAjax.createRequest({//第一個option是request的參數
-        host: 'https://my-test-api1080.herokuapp.com/' 
-    }, {//第二個option是處理request的設定 ex: timeout   這裡的color只是我做demo用, 非模組內的參數
+    var defaultRequest = besAjax.createRequest({ //第一個option是request的參數
+        host: 'https://my-test-api1080.herokuapp.com/'
+    }, { //第二個option是處理request的設定 ex: timeout   這裡的color只是我做demo用, 非模組內的參數
         responseType: 'text',
         primary: 5,
         timeout: 4000,
-        color:'lightgray',
+        color: 'lightgray',
     })
     //每個request可以有自己的onsucces, onerror functions, child request也會繼承到
-    defaultRequest.onsuccess = function(){
-        if(window.chrome)
-            console.log('%c request success :)','font-size:large;font-weight:bold');
+    defaultRequest.onsuccess = function(res) {
+        if (window.chrome)
+            console.log('%c request success :)', 'font-size:large;font-weight:bold');
         else
             console.log('request success :)')
     }
-     defaultRequest.onerror = function(){
-        if(window.chrome)
-            console.log('%c request failed :(','font-size:large;font-weight:bold;color:red');
+    defaultRequest.onerror = function() {
+        if (window.chrome)
+            console.log('%c request failed :(', 'font-size:large;font-weight:bold;color:red');
         else
             console.log('request failed :(')
     }
@@ -111,17 +141,21 @@
     var badRequest = defaultRequest.extend({
         path: '/fatal'
     }, {
-        retry: 5,
+        retry: 3,
         sleep: 500,
-        primary:10,
+        primary: 10,
         //expofn: function(x,a){let y=a+(x)*100; return (y>3000)?3000:y;},
-        color:'red',
+        color: 'red',
+        errorType: 'text'
     })
+    badRequest.onerror = function(e) {
+        console.log(e)
+    }
     var delayRequest = defaultRequest.extend({
         path: '/delay'
     }, {
-        name: 'delayRequest',//取名字, 在log或是debug時候就能知道是哪一個request
-        primary: 0,//優先順序 0 最優先
+        name: 'delayRequest', //取名字, 在log或是debug時候就能知道是哪一個request
+        primary: 0, //優先順序 0 最優先
         color: 'rgba(0,0,255,0.7)',
     })
     var instantRequest = defaultRequest.extend({
@@ -129,7 +163,7 @@
     }, {
         name: 'instantRequest1',
         primary: 1,
-        responseType: 'json'//處理response的方式：response回來是一個body物件，用text, json, blob等等方式處理(詳見fetch的response物件)
+        responseType: 'json' //處理response的方式：response回來是一個body物件，用text, json, blob等等方式處理(詳見fetch的response物件)
     })
 
     var app = new Vue({
@@ -138,17 +172,17 @@
             results: [],
             exePool: [],
             waitingPool: [],
-            controll : besAjax,
+            controll: besAjax,
             delayRequest: delayRequest,
             postRequest: delayRequest.extend({
                 method: 'post',
-                path:'json',
+                path: 'json',
                 body: JSON.stringify({ "name": "postRequest" }),
                 headers: { 'Content-Type': 'application/json' }
             }, {
                 name: 'postRequest',
                 primary: 2,
-                color:'rgba(188,188,0,0.7)'
+                color: 'rgba(188,188,0,0.7)'
             }),
             instantRequest: instantRequest,
             instantRequest2: instantRequest.extend({}, { name: 'instantRequest20', primary: 20, responseType: 'text' })
@@ -157,12 +191,12 @@
 
     //這個是global的success, error handle function, 所有besAjax產生的request都套用
     besAjax.successHandler = function(res, name) {
-        app.results.unshift('['+name+' done]: response: '+res)
+        app.results.unshift('[' + name + ' done]: response: ' + res)
         if (app.results.length > 30)
             app.results.pop()
     }
     besAjax.errorHandler = function(e, name) {
-        app.results.unshift('['+name+' fail]: error: '+e)
+        app.results.unshift('[' + name + ' fail]: error: ' + e)
         if (app.results.length > 30)
             app.results.pop()
     }
@@ -174,24 +208,23 @@
 
     function sendBadRequest() {
         for (var i = 0; i < 15; i++) {
-            badRequest.extend({ query: 'index='+i }, { name: 'badRequest'+i }).send()
+            badRequest.extend({ query: 'index=' + i }, { name: 'badRequest' + i }).send()
                 .then(function(res) {})
                 .catch(function(e) {})
         }
     }
     sendBadRequest();
-    for(var i=0;i<5;i++){
-        delayRequest.extend({query:'i='+i},{primary:4,name:'delayRequest4',color: 'rgba(0,0,255,0.2)',}).send()
+    for (var i = 0; i < 5; i++) {
+        delayRequest.extend({ query: 'i=' + i }, { primary: 4, name: 'delayRequest4', color: 'rgba(0,0,255,0.2)', }).send()
     }
-    for(var i=0;i<5;i++){
-        delayRequest.extend({path:'delay',query:'i='+i},{name:'delayRequest2',primary:2,color: 'rgba(188,188,0,0.2)'}).send()
+    for (var i = 0; i < 5; i++) {
+        delayRequest.extend({ path: 'delay', query: 'i=' + i }, { name: 'delayRequest2', primary: 2, color: 'rgba(188,188,0,0.2)' }).send()
     }
-    setTimeout(function(){
-        for(var i=0;i<5;i++){
-            delayRequest.extend({path:'delay2',query:'i='+i},{primary:0,name:'delayRequest0'}).send()
+    setTimeout(function() {
+        for (var i = 0; i < 5; i++) {
+            delayRequest.extend({ path: 'delay2', query: 'i=' + i }, { primary: 0, name: 'delayRequest0' }).send()
         }
-    },100)
-    
+    }, 100)
     </script>
 </body>
 

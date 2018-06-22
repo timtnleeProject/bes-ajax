@@ -8,6 +8,7 @@ function Task(fetchoptions, options) {
     this.options = options;
     this.primary = (options.primary) ? options.primary : 1;
     this.type = options.responseType;
+    this.errType = options.errorType;
     this.count = 0;
     /* 4個狀態 
         init: 一開始 
@@ -72,7 +73,7 @@ Task.prototype.run = function() {
     new Promise(function(resolve, reject) {
         promiseStart.then(function(response) {
             if (!response.ok) { //fetch won't catch 404, 500 error, etc...check response.ok
-                return Promise.reject(response.statusText)
+                return Promise.reject(response)
             }
             log('Task', 'task "' + me.options.name + '" success with status ' + response.status)
             response = (me.type) ? response[me.type]() : response;
@@ -87,7 +88,7 @@ Task.prototype.run = function() {
             if(me.status==='abort'){
                 me.status ='init'
             } else if (++me.count <= me.retry) {
-                log('Task', 'task "' + me.options.name + '" will retry after ' + me.sleep + 'ms with statusText : ' + e + ', has tried ' + me.count + ' times')
+                log('Task', 'task "' + me.options.name + '" failed, status: '+e.status+' will retry after ' + me.sleep + 'ms , has tried ' + me.count + ' times')
                 setTimeout(function() {
                     if (!me.stop) {//在exePool裡
                         me.run();
@@ -101,7 +102,7 @@ Task.prototype.run = function() {
                     log('Task', me.options.name + ' ready to be reject in waitingPool.')
                     me.resolveLater(reject, e)
                 } else {
-                    log('Task', 'task "' + me.options.name + '" fail with statusText ' + e)
+                    log('Task', 'task "' + me.options.name + '" failed, status: '+e.status)
                     reject(e)
                 }
             }
@@ -109,7 +110,11 @@ Task.prototype.run = function() {
     }).then(function(response) {
         me.emit('done', 'success', response)
     }).catch(function(e) {
-        me.emit('done', 'fail', e)
+        e = (me.errType)?e[me.errType]():e
+        e = (e==undefined) ? true : e;
+        e.then((res)=>{
+            me.emit('done', 'fail', res)
+        })
     })
 }
 Task.prototype.resolveLater = function(resolve, response) {

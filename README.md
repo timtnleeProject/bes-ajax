@@ -1,11 +1,21 @@
-# BesAjax #
+# bes-ajax #
 
 **A ajax handler using fetch API.**
 
-* Create default request.
+* Handle numbers of ajax requests on browsers.
 * Extend requests based on default/other requests, share same basic options and success, error functions.
 * Retry when requests fail.
 * Sort requests by their priorities.
+* Set requests timeout.
+
+## Menu
+
+* [Example](#example)
+* [Demo](#demo)
+* [Installation](#installation)
+* [Concept](#concept)
+* [Document](#document)
+* [Version Release](#versionrelease)
 
 ## Example ##
 
@@ -292,5 +302,17 @@ How it works?
 		- **type** `<String>`
 		- default `undefined`
 	- responseType
-		- preserve response with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
+		- Parse success response body with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
 		- **type** `<String>`
+
+## Version Release
+
+**1.0.6**
+> 
+> Add fetch abort feature.
+>
+**1.0.7**
+>
+> Before version 1.0.7, promise and `onerror` function only pass `response.status`. Since 1.0.7 will pass `fetch response` as well.
+>
+>New options `errorType` in `options`, parse error response.  
