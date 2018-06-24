@@ -1,8 +1,8 @@
 # bes-ajax #
 
-**A ajax handler using fetch API.**
+**A ajax handler base on [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).**
 
-* Handle numbers of ajax requests on browsers.
+* Use to handle numbers of repeating ajax requests on browsers.
 * Extend requests based on default/other requests, share same basic options and success, error functions.
 * Retry when requests fail.
 * Sort requests by their priorities.
@@ -10,61 +10,122 @@
 
 ## Menu
 
-* [Example](#example)
 * [Demo](#demo)
+* [Example](#example)
 * [Installation](#installation)
 * [Concept](#concept)
 * [Document](#document)
-* [Version Release](#versionrelease)
+* [Version Release](#version-release)
+
+## Demo ##
+
+**live demo**
+
+[demo page](https://bes-ajax-demo.herokuapp.com/)
 
 ## Example ##
 
-### create request ###
+### create handler (BesRequestObject) ###
     
 ```js
 const besAjax = BesAjaxRequest({
-  log: false,
-  abort: false,
+  log: false, //show logs in console?
+  abort: false, //use AbortController?
   resolveFirst: false,
   poolSize: 3
 });
+```
 
-const defaultRequest = besAjax.createRequest ({
-  host: 'http://127.0.0.1:3000',
-  path: 'api',
-}, {
-  responseType: 'text',
-  retry: 7, 
-  sleep: 1000,
-  primary: 3,
-  timeout: 5000,
-  name: 'defaultReq'
+### create request
+```js
+//two params: fetchoptions & options
+const request = besAjax.createRequest(fetchoptions, options)
+```
+### compare with Fetch
+```js
+const data = {name: 'bes-ajax'}
+
+// using normal Fetch
+fetch('http://example.com/api' ,{
+  body: JSON.stringify(data), // must match 'Content-Type' header
+  headercache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+  credentials: 'same-origin', // include, same-origin, *omit
+  headers: {
+    'user-agent': 'Mozilla/4.0 MDN Example',
+    'content-type': 'application/json'
+  },
+  method: 'POST', // *GET, POST, PUT, DELETE, etc.
+  mode: 'cors', // no-cors, cors, *same-origin
+  redirect: 'follow', // manual, *follow, error
+  referrer: 'no-referrer', // *client, no-referrer
 })
-	
-defaultRequest.onsuccess = function(res) {
-  console.log(this.options.name + ' success:', res)
-}
+.then(response => response.json())
+.catch(response => response.json())
+.then(res => console.log(res))
+//------------------------------------------
+//using bes-ajax
+//create request
+const postRequest = besAjax.createRequest (
+{
+  /*First paramenter is almost the same as fetch's init options
+  The only difference is that you put request url here, 
+  and you can split url to host + path + query*/
+  host: 'http://example.com',
+  path: 'api',
+  body: JSON.stringify(data), 
+  headercache: 'no-cache', 
+  credentials: 'same-origin',
+  headers: {
+    'user-agent': 'Mozilla/4.0 MDN Example',
+    'content-type': 'application/json'
+  },
+  method: 'POST', 
+  mode: 'cors',
+  redirect: 'follow', 
+  referrer: 'no-referrer', 
+}, 
+{/*The second parameter is bes-ajax options*/
+  responseType: 'json', //parses response body to json/text/blob...
+  errorType: null, //parses error response body to json/text/blob...
+  retry: 3, //when requests fail, it will not be rejected  until retry for 3 times. 
+  sleep: 1000, //milliseconds during every retry.
+  primary: 3, //request's priority
+  timeout: 5000, //request timeout (millisecond)
+  name: 'defaultRequest' //request's name
+})
+//send request
+postRequest.send()
+.then(res => console.log(res))
+.catch(res => console.log(res))
 ```
 
 ### extend requests ###
-	
+
+If your requests share same basic options, onsuccess and onerror function, it is useful to use **extend** to create requests.
 ```js
-const postRequest = defaultRequest.extend({
-  method: 'post',
-  headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
-  body: JSON.stringify({ name: 'p0855' }),
-  path: '/api'
+const rootRequest = besAjax.createRequest({
+  host: 'http://example.com/api',
+  headers: {'hello': 'world'}
 }, {
-  retry:0,
-  responseType: 'json',
-  primary: 0, 
-  name: 'postReq',
+  primary: 1, 
+  name: 'rootRequest',
+  responseType: 'text'
 })
 
-postRequest.onsuccess = function (res) {
-  console.log('post request success!')
+rootRequest.onsuccess = function(res）{
+ console.log(this.options.name+' success!')
 }
-postRequest.send()
+rootRequest.onerror = function(e）{
+ console.log(this.options.name+' filed!')
+}
+/*childRequest will extend or merge rootRequest's options
+and onsuccess, onerror function*/
+const childRequest = rootRequest.extend({
+  path: 'user_name'
+}, {
+  primary: 5,
+  name: 'childRequest'
+})
 ```
 
 **append body dynamically**
@@ -77,7 +138,7 @@ postRequest.send()
 **promise**
 
 ```js
-defaultRequest.send().then((res1)=>{
+childRequest.send().then((res1)=>{
   //first response
   postRequest.fetchoptions.body = JSON.stringify({name: res1})
   return postRequest.send()
@@ -87,13 +148,6 @@ defaultRequest.send().then((res1)=>{
   //handle error
 })
  ```
-
-## Demo ##
-
-**live demo**
-
-[demo page](https://bes-ajax-demo.herokuapp.com/)
-
 
 ## Installation ##
 
@@ -175,6 +229,7 @@ How it works?
 - **type** `<Function>`
 - **return** [`BesAjaxObject`](#besajaxobject)  
 
+---
 ### BesAjaxObject ###
 - This object can create request object, handle execute pool and waiting pool.
 - **type** `<Object>`
@@ -221,9 +276,15 @@ How it works?
 ### BesAjaxObject.taskPool.on('pool', `Function`) ###
 - Fired when exePool/waitingPool push/remove tasks.
 
+---
 ### BesRequestObject ###
 - Request object
 - **type** `<Object>`
+
+### BesRequestObject.clone()
+- Copy a `BesRequestObject`.
+- **type** `<Function>`
+- **return** `BesRequestObject`
 
 ### BesRequestObject.extend(`fetchOptions`,`options`) ###
 - Create another `BesRequestObject` extended `fetchOptions`, `options`
@@ -251,6 +312,7 @@ How it works?
 - **parameters**
 	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
 
+---
 ### fetchoptions ###
 - **type** `<Object>`
 - Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
@@ -270,7 +332,7 @@ How it works?
 	- query 
 		- request's query string. _ex: 'user=xxx;id=123'_
 		- **type** `<String>`   
-
+---
 ### options ###
 - BesRequestObject options
 - **type** `<Object>`
@@ -304,12 +366,14 @@ How it works?
 	- responseType
 		- Parse success response body with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
 		- **type** `<String>`
-
+    - errorType
+        - Parse error response body with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
+		- **type** `<String>`
 ## Version Release
 
 **1.0.6**
 > 
-> Add fetch abort feature.
+> Add [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) feature.
 >
 **1.0.7**
 >
