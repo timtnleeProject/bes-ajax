@@ -310,7 +310,7 @@ How it works?
 - execute when task error, will extend ancestor requests' onerror function.
 - **type** `<Function>` 
 - **parameters**
-	- `responseObject` : can be `text`,`json`,`blob`... depends on `responseType` in [`options`](#options).
+	- `responseObject` : can be `text`,`json`,`blob`... depends on `errorType` in [`options`](#options).
 
 ---
 ### fetchoptions ###
