@@ -377,6 +377,6 @@ How it works?
 >
 **1.0.7**
 >
-> Before version 1.0.7, promise and `onerror` function only pass `response.status`. Since 1.0.7 will pass `fetch response` as well.
+> Before version 1.0.7, promise reject and `onerror` function only pass `response.status`. Since 1.0.7 will pass `fetch response` as well.
 >
 >New options `errorType` in `options`, parse error response.  
