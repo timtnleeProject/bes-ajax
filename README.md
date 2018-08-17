@@ -10,6 +10,23 @@
 * Sort requests by their priorities.
 * Set requests timeout.
 
+## Version Release
+
+**1.0.9**
+> Update readme, add build test.
+
+**1.0.8**
+> Add IE support.
+
+**1.0.7**
+>
+> Before version 1.0.7, promise reject and `onerror` function only pass `response.status`. Since 1.0.7 will pass `fetch response` as well.
+>
+>New options `errorType` in `options`, parse error response. 
+**1.0.6**
+> 
+> Add [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) feature.
+
 ## Menu
 
 * [Demo](#demo)
@@ -17,7 +34,6 @@
 * [Installation](#installation)
 * [Concept](#concept)
 * [Document](#document)
-* [Version Release](#version-release)
 
 ## Demo ##
 
@@ -373,14 +389,3 @@ How it works?
     - errorType
         - Parse error response body with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
 		- **type** `<String>`
-## Version Release
-
-**1.0.6**
-> 
-> Add [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) feature.
->
-**1.0.7**
->
-> Before version 1.0.7, promise reject and `onerror` function only pass `response.status`. Since 1.0.7 will pass `fetch response` as well.
->
->New options `errorType` in `options`, parse error response.  
