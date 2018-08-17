@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/timtnleeProject/bes-ajax#readme",
   "dependencies": {
+    "promise-polyfill": "^8.1.0",
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {

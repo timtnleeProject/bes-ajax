@@ -1,5 +1,7 @@
 # bes-ajax #
 
+[![](https://api.travis-ci.org/timtnleeProject/bes-ajax.svg?branch=master)](https://travis-ci.org/timtnleeProject/bes-ajax)
+
 **A ajax handler base on [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).**
 
 * Use to handle numbers of repeating ajax requests on browsers.
@@ -218,7 +220,9 @@ How it works?
 
 **Capacity**
 
-> For browser capacity, we have require [fetch polyfill](https://github.com/github/fetch) as a dependency.
+> For browser capacity, we have require [fetch](https://github.com/github/fetch) and [promise-polyfill](https://www.npmjs.com/package/promise-polyfill) as dependencies.
+
+
 
   
 

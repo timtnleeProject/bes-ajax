@@ -1,5 +1,3 @@
-import 'whatwg-fetch';//fetch polifill
-import EventListener from './event';
 import { Task, TaskPool } from './task';
 import BesRequest from './request';
 import log from './log';

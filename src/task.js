@@ -111,10 +111,7 @@ Task.prototype.run = function() {
         me.emit('done', 'success', response)
     }).catch(function(e) {
         e = (me.errType)?e[me.errType]():e
-        e = (e==undefined) ? true : e;
-        e.then((res)=>{
-            me.emit('done', 'fail', res)
-        })
+        me.emit('done', 'fail', e)
     })
 }
 Task.prototype.resolveLater = function(resolve, response) {
