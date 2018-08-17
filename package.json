@@ -1,6 +1,6 @@
 {
   "name": "bes-ajax",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Ajax handler using fetch API",
   "main": "./src/ajax.js",
   "scripts": {
