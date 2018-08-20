@@ -12,6 +12,9 @@
 
 ## Version Release
 
+**1.0.10**
+> Update potential security vulnerability dependencies, add dist script.
+
 **1.0.9**
 > Update readme, add build test.
 
@@ -39,7 +42,7 @@
 
 **live demo**
 
-[demo page](https://bes-ajax-demo.herokuapp.com/)
+[demo page](https://timtnleeproject.github.io/bes-ajax/)
 
 ## Example ##
 
@@ -180,24 +183,11 @@ $npm install bes-ajax --save
 import besAjax from 'bes-ajax';
 ```
 
-### Get Build script ###
+### CDN script ###
 
-Clone the repository.
+distribution script at `/dist/cdn.min.js`.
 
-**Install dependencies**
-
-```bash
-$npm install
-```
-**Build dist script**
-
-```bash
-$npm run build
-```
-
-Bundled script at `/dist/cdn.min.js`.
-
-**Run example**
+### Run example ###
 
 ```bash
 $npm start
