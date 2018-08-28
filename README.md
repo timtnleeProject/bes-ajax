@@ -185,7 +185,7 @@ import besAjax from 'bes-ajax';
 
 ### CDN script ###
 
-distribution script at `/dist/cdn.min.js`.
+[https://unpkg.com/bes-ajax@1.0.10/dist/cdn.min.js](https://unpkg.com/bes-ajax@1.0.10/dist/cdn.min.js)
 
 ### Run example ###
 
